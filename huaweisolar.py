@@ -11,8 +11,8 @@ logging.basicConfig(format=FORMAT)
 log = logging.getLogger()
 log.setLevel(logging.INFO)
 
-inverter_ip = os.getenv('INVERTER_IP', '192.168.1.14')
-mqtt_host = os.getenv('MQTT_HOST', '192.168.1.15')
+inverter_ip = os.getenv('INVERTER_IP', '192.168.1.193')
+mqtt_host = os.getenv('MQTT_HOST', 'mosquitto')
 
 inverter = huawei_solar.HuaweiSolar(inverter_ip, port=502, slave=1)
 inverter._slave = 1
@@ -33,12 +33,14 @@ inverter.wait = 1
 
 def modbusAccess():
 
-    vars_inmediate = ['pv_01_voltage', 'pv_01_current', 'pv_02_voltage','pv_02_current', 'input_power', 'grid_voltage', 
+    vars_inmediate = ['input_power', 'grid_voltage', 
     'grid_current', 'active_power', 
-    'grid_A_voltage', 'active_grid_A_current', 'power_meter_active_power']
+    'grid_A_voltage', 'active_grid_A_current', 'power_meter_active_power', 'storage_unit_1_bus_current', 'storage_unit_1_bus_voltage',
+    'storage_unit_1_charge_discharge_power', 'storage_unit_1_state_of_capacity', 'storage_unit_1_total_charge', 'storage_unit_1_total_discharge']
 
     vars = ['day_active_power_peak', 'efficiency', 'internal_temperature', 'insulation_resistance', 'device_status', 'fault_code', 'accumulated_yield_energy',
-    'daily_yield_energy', 'grid_exported_energy', 'grid_accumulated_energy']
+    'daily_yield_energy', 'grid_exported_energy', 'grid_accumulated_energy', 'storage_unit_1_current_day_charge_capacity', 
+    'storage_unit_1_current_day_discharge_capacity']
 
     cont = 0
     while True:
@@ -90,7 +92,7 @@ clientMQTT = paho.mqtt.client.Client()
 clientMQTT.on_connect=on_connect #bind call back function
 clientMQTT.loop_start()
 log.info("Connecting to MQTT broker: %s ",mqtt_host)
-clientMQTT.username_pw_set(username="",password="")
+#clientMQTT.username_pw_set(username="",password="")
 clientMQTT.connect(mqtt_host, broker_port) #connect to broker
 while not clientMQTT.connected_flag: #wait in loop
     log.info("...")
